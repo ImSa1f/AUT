@@ -1769,7 +1769,12 @@ if game.GameId == 1782832995 and getgenv().AUNIVERSALTIME == true then
     --     end
     -- })
 
+
+    task.spawn(function()
     if game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+        for i = 1,30 do task.wait()
+        print('cuh')
+        end
         function getTraits()
             allTraits = {}
             for traitName, _ in pairs(TraitHandler.Traits) do
@@ -1792,6 +1797,7 @@ if game.GameId == 1782832995 and getgenv().AUNIVERSALTIME == true then
 
         getTraits()
     end
+    end)
 
     sections.miscautosright:Divider()
 
