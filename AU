@@ -1,0 +1,2833 @@
+getgenv().AUNIVERSALTIME = true
+getgenv().AOTREVOLUTION = true
+getgenv().MO = true
+
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+while not game:GetService("Workspace") do
+    task.wait()
+end
+
+game = game
+workspace = cloneref(game:GetService("Workspace"))
+players = cloneref(game:GetService("Players"))
+
+player = players.LocalPlayer
+
+while not player do task.wait()
+    player = players.LocalPlayer
+end
+
+vim = cloneref(game:GetService("VirtualInputManager"))
+
+while not vim do task.wait()
+    vim = cloneref(game:GetService("VirtualInputManager"))
+end
+
+VirtualUser = cloneref(game:GetService("VirtualUser"))
+RunService = cloneref(game:GetService("RunService"))
+TweenService = cloneref(game:GetService("TweenService"))
+TeleportService = cloneref(game:GetService("TeleportService"))
+httpService = cloneref(game:GetService("HttpService"))
+coreGui = cloneref(game:GetService("CoreGui"))
+ReplicatedStorage = cloneref(game:GetService("ReplicatedStorage"))
+UserInputService = cloneref(game:GetService("UserInputService"))
+GuiService = cloneref(game:GetService("GuiService"))
+StarterGui = cloneref(game:GetService("StarterGui"))
+mouse = player:GetMouse()
+
+camera = workspace.Camera
+screenWidth = camera.ViewportSize.X
+screenHeight = camera.ViewportSize.Y
+screenSize = workspace.CurrentCamera.ViewportSize
+
+function press(btn)
+    local inset = GuiService:GetGuiInset()
+    local aPos, aSize = btn.AbsolutePosition, btn.AbsoluteSize
+    vim:SendMouseButtonEvent(inset.X + aPos.X + aSize.X / 2, inset.Y + aPos.Y + aSize.Y / 2, 0, true, nil, 1)
+    vim:SendMouseButtonEvent(inset.X + aPos.X + aSize.X / 2, inset.Y + aPos.Y + aSize.Y / 2, 0, false, nil, 1)
+end
+
+local function realClick(instance)
+    if instance and instance.Selectable and instance.Visible == true then
+        GuiService.SelectedObject = instance
+        task.wait()
+        vim:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+        vim:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+        task.wait()
+        GuiService.SelectedObject = nil
+    end
+end
+
+player.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+task.spawn(function()
+    while task.wait() do
+        vim:SendKeyEvent(true, Enum.KeyCode.L, false, game)
+        task.wait(.1)
+        vim:SendKeyEvent(false, Enum.KeyCode.L, false, game)
+        task.wait(600)
+    end
+end)
+
+local function sendNotification(title, text, duration)
+    StarterGui:SetCore("SendNotification", { Title = title; Text = text; Duration = duration; })
+end
+
+if game.GameId == 1782832995 and getgenv().AUNIVERSALTIME == true then
+
+    if game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+        character = player.Character or player.CharacterAdded:Wait()
+
+        while not character do task.wait()
+            character = player.Character
+        end
+
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+
+        while not hrp do task.wait()
+            hrp = character:FindFirstChild("HumanoidRootPart")
+        end
+
+        humanoid = character:FindFirstChildOfClass("Humanoid")
+
+        while not humanoid do task.wait()
+            humanoid = character:FindFirstChildOfClass("Humanoid")
+        end
+
+        character = player.Character or player.CharacterAdded:Wait()
+        humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        humanoid = character:FindFirstChildOfClass("Humanoid")
+
+        player.CharacterAdded:Connect(function(newCharacter)
+            character = newCharacter
+            humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+            humanoid = character:FindFirstChildOfClass("Humanoid")
+        end)
+    end
+
+    local moveCancelled = false
+    local moveInProgress = false
+
+    local function moveTo(character, targetPosition)
+        if not character or not targetPosition then return end
+
+        if moveInProgress then
+            moveCancelled = true
+        end
+
+        moveCancelled = false
+        moveInProgress = true
+
+        local rootpart = character:FindFirstChild("HumanoidRootPart")
+        if not rootpart then return end
+
+        local startPosition = rootpart.Position
+
+        local direction = (targetPosition - startPosition).Unit
+        local distance = (targetPosition - startPosition).Magnitude
+
+        local duration = distance / 600
+
+        local startTime = os.clock()
+        local endTime = startTime + duration
+
+        while os.clock() < endTime and not moveCancelled do task.wait()
+            local currentTime = os.clock()
+            local timeRatio = (currentTime - startTime) / duration
+
+            local currentPosition = startPosition + direction * (distance * timeRatio)
+
+            rootpart.CFrame = CFrame.new(currentPosition)
+
+            TweenService:Create(game.Workspace.CurrentCamera, TweenInfo.new(0.1), {CFrame = CFrame.new(currentPosition, targetPosition)}):Play()
+        end
+
+        rootpart.CFrame = CFrame.new(targetPosition)
+
+        moveInProgress = false
+    end
+
+    local function stripTags(text)
+        return text:gsub("<[^>]+>", "")
+    end
+
+    local function trim(s)
+        return s:match("^%s*(.-)%s*$")
+    end
+
+    local clickX = math.floor(screenWidth * 0.1)
+    local clickY = math.floor(screenHeight * 0.1)
+
+    task.wait(2)
+
+    local MacLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ImSa1f/Lib/refs/heads/main/Li"))()
+
+    local windowWidth = screenSize.X * 0.45
+    local windowHeight = screenSize.Y * 0.45
+
+    local Window = MacLib:Window({
+        Title = "North Hub",
+        Subtitle = "discord.gg/northub",
+        Size = UDim2.fromOffset(windowWidth, windowHeight),
+        DragStyle = 1,
+        DisabledWindowControls = {},
+        ShowUserInfo = false,
+        Keybind = Enum.KeyCode.RightControl,
+        AcrylicBlur = true,
+    })
+
+    local macUI
+
+    while not macUI do task.wait()
+        for i,v in pairs(coreGui:GetDescendants()) do
+            if v.Name == "ScreenGui" and v:FindFirstChild("Base") then
+                macUI = v
+            end
+        end
+        for i, x in ipairs(gethui():GetChildren()) do
+            if x.Name == "ScreenGui" and x:FindFirstChild("Base") then
+                macUI = x
+            end
+        end
+    end
+
+    local function createButtonUI()
+        local buttonGui = Instance.new("ScreenGui", macUI.Parent)
+        buttonGui.Name = "ButtonUI"
+
+        local backgroundFrame = Instance.new("Frame", buttonGui)
+        backgroundFrame.Name = "BackgroundFrame"
+        backgroundFrame.Size = UDim2.new(0, 60, 0, 60)
+        backgroundFrame.Position = UDim2.new(1, -70, 0.5, -30)
+        backgroundFrame.BackgroundColor3 = Color3.new(1, 0, 0)
+        backgroundFrame.BorderSizePixel = 0
+        backgroundFrame.Transparency = 1
+
+        local button = Instance.new("ImageButton", backgroundFrame)
+        button.Name = "OpenButton"
+        button.Image = "rbxassetid://107491175530182"
+        button.Size = UDim2.new(0, 100, 0, 100)
+        button.Position = UDim2.new(0.5, -45, 0.5, -45)
+        button.BackgroundTransparency = 1
+        return button
+    end
+
+    local function togglemacUI()
+        if macUI then
+            macUI.Enabled = not macUI.Enabled
+            return true
+        end
+        return false
+    end
+
+    local button = createButtonUI()
+    button.MouseButton1Click:Connect(togglemacUI)
+
+    local globalSettings = {
+        UIBlurToggle = Window:GlobalSetting({
+            Name = "UI Blur",
+            Default = Window:GetAcrylicBlurState(),
+            Callback = function(bool)
+                Window:SetAcrylicBlurState(bool)
+                Window:Notify({
+                    Title = Window.Settings.Title,
+                    Description = (bool and "Enabled" or "Disabled") .. " UI Blur",
+                    Lifetime = 5
+                })
+            end,
+        }),
+        NotificationToggler = Window:GlobalSetting({
+            Name = "Notifications",
+            Default = Window:GetNotificationsState(),
+            Callback = function(bool)
+                Window:SetNotificationsState(bool)
+                Window:Notify({
+                    Title = Window.Settings.Title,
+                    Description = (bool and "Enabled" or "Disabled") .. " Notifications",
+                    Lifetime = 5
+                })
+            end,
+        }),
+        ShowUserInfo = Window:GlobalSetting({
+            Name = "Show User Info",
+            Default = Window:GetUserInfoState(),
+            Callback = function(bool)
+                Window:SetUserInfoState(bool)
+                Window:Notify({
+                    Title = Window.Settings.Title,
+                    Description = (bool and "Showing" or "Redacted") .. " User Info",
+                    Lifetime = 5
+                })
+            end,
+        })
+    }
+
+    local tabGroups = {
+        TabGroup1 = Window:TabGroup()
+    }
+
+    local tabs = {
+        Main = tabGroups.TabGroup1:Tab({ Name = "Main", Image = "rbxassetid://18821914323" }),
+        itemsandchests = tabGroups.TabGroup1:Tab({ Name = "Items & Chests", Image = "rbxassetid://18821914323" }),
+        miscautos = tabGroups.TabGroup1:Tab({ Name = "Misc Autos", Image = "rbxassetid://18821914323" }),
+        teleports = tabGroups.TabGroup1:Tab({ Name = "Teleports", Image = "rbxassetid://18821914323" }),
+        misc = tabGroups.TabGroup1:Tab({ Name = "Misc", Image = "rbxassetid://18821914323" }),
+        menus = tabGroups.TabGroup1:Tab({ Name = "Menus", Image = "rbxassetid://18821914323" }),
+        risky = tabGroups.TabGroup1:Tab({ Name = "Risky", Image = "rbxassetid://18821914323" }),
+        Settings = tabGroups.TabGroup1:Tab({ Name = "Settings", Image = "rbxassetid://10734950309" })
+    }
+
+    local sections = {
+        mainleft = tabs.Main:Section({ Side = "Left" }),
+        mainright = tabs.Main:Section({ Side = "Right" }),
+        itemsandchestsleft = tabs.itemsandchests:Section({ Side = "Left" }),
+        itemsandchestsright = tabs.itemsandchests:Section({ Side = "Right" }),
+        miscautosleft = tabs.miscautos:Section({ Side = "Left" }),
+        miscautosright = tabs.miscautos:Section({ Side = "Right" }),
+        teleportsleft = tabs.teleports:Section({ Side = "Left" }),
+        teleportsright = tabs.teleports:Section({ Side = "Right" }),
+        miscleft = tabs.misc:Section({ Side = "Left" }),
+        menuleft = tabs.menus:Section({ Side = "Left" }),
+        menuright = tabs.menus:Section({ Side = "Right" }),
+        riskyleft = tabs.risky:Section({ Side = "Left" }),
+        riskyright = tabs.risky:Section({ Side = "Right" }),
+    }
+
+    farmingchest = false
+
+    sections.mainright:Divider()
+
+    sections.mainright:Header({
+        Text = "Farm Settings"
+    })
+
+    sections.mainright:Toggle({
+        Name = "Auto Equip Stand",
+        Default = false,
+        Callback = function(state)
+            autoequip = state
+            if autoequip and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+
+                while autoequip do task.wait()
+                    local success, err = pcall(function()
+
+                        if character:FindFirstChild("StatesFolder") and character.StatesFolder:FindFirstChild("StandOff") and character.StatesFolder.StandOff.Value then
+                            ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.MoveInputService.RF.FireInput:InvokeServer("Q")
+                            ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.MoveInputService.RF.FireInput:InvokeServer("END-Q")
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "autoequipstand")
+
+    sections.mainleft:Toggle({
+        Name = "Instant Kill",
+        Default = false,
+        Callback = function(state)
+            instakill = state
+            if instakill and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+
+                local function checkTarget(k)
+                    if k:IsA("Model") and k:FindFirstChild("Head") and k.Head:IsA("Part") and k.Head.Name == "Head" and k.Head ~= character.Head then
+                        local humanoid = k:FindFirstChildOfClass("Humanoid")
+                        local targetPlayer = players:GetPlayerFromCharacter(k)
+                        if humanoid and humanoid.Health > 0 and humanoid.Health < humanoid.MaxHealth and targetPlayer ~= player then
+                            local distance = (k.Head.Position - character.Head.Position).magnitude
+                            if distance <= 35 then
+                                humanoid.Health = 0
+                            end
+                        end
+                    end
+                end
+
+                while instakill do task.wait()
+                    local success, err = pcall(function()
+                        for _, k in ipairs(workspace.Living:GetChildren()) do
+                            checkTarget(k) 
+                        end
+                    end)
+                    if not success then warn(err) end
+                    task.wait(.1)
+                end
+            end
+        end
+    }, "InstantKill")
+    
+    sections.mainright:Slider({
+        Name = "Sell Delay",
+        Default = 2,
+        Minimum = 0,
+        Maximum = 180,
+        DisplayMethod = "Round",
+        Precision = 0,
+        Callback = function(t)
+            selldelay = t
+        end
+    }, "SellDelay")
+
+    sections.mainright:Toggle({
+        Name = "Auto Sell",
+        Default = false,
+        Callback = function(state)
+            autosell = state
+            if autosell and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+            
+                while autosell do task.wait()
+                    local success, error = pcall(function()
+                        local backpack = player.Backpack
+                        local tool = backpack:FindFirstChildOfClass("Tool")
+                        local prompt = player.PlayerGui.UI.Prompt
+
+                        local itemsToSell = {}
+
+                        for _, tool in ipairs(backpack:GetChildren()) do
+                            if tool:IsA("Tool") then
+                                local itemId = tool:GetAttribute("ItemId")
+                                local uuid = tool:GetAttribute("UUID")
+                        
+                                if itemId and uuid then
+                                    table.insert(itemsToSell, {itemId, uuid, 1})
+                                end
+                            end
+                        end
+                        
+                        if #itemsToSell > 0 then
+                            ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.ShopService.RE.Signal:FireServer("BlackMarketBulkSellItems", itemsToSell)
+                            task.wait(selldelay)
+                        end
+                        if prompt.Visible and not player.PlayerGui.UI.Gameplay.TraitHands.Visible then
+                            press(prompt.Frame.SingleButton)
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "Auto_Sell")
+
+    sections.mainleft:Divider()
+
+    sections.mainleft:Header({
+        Text = "Mob Auto Farms"
+    })
+
+    local Mobs_Table = {}
+    if game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+        for i,v in pairs(workspace.Living:GetChildren()) do
+            if v:IsA("Model") and not players:FindFirstChild(v.Name) and not table.find(Mobs_Table,v.Name) then
+                table.insert(Mobs_Table,v.Name)
+            end
+        end
+    end
+
+    local mobsdropdown = sections.mainright:Dropdown({
+        Name = "Select Mobs to Farm",
+        Search = true,
+        Multi = true,
+        Required = false,
+        Options = Mobs_Table,
+        Default = nil,
+        Callback = function(selectedValues)
+            SelectedMobs = {}
+            for mobName, isSelected in pairs(selectedValues) do
+                if isSelected then
+                    table.insert(SelectedMobs, mobName)
+                end
+            end
+        end,
+    }, "MobsToFarm")
+
+    sections.mainright:Button({
+        Name = "Clear Mobs Selected",
+        Callback = function()
+            mobsdropdown:UpdateSelection({nil})
+        end,
+    })
+
+    sections.mainright:Button({
+        Name = "Refresh Mobs List",
+        Callback = function()
+            local Mobs_Table = {}
+            for i,v in pairs(workspace.Living:GetChildren()) do
+                if v:IsA("Model") and not players:FindFirstChild(v.Name) and not table.find(Mobs_Table,v.Name) then
+                    table.insert(Mobs_Table,v.Name)
+                end
+            end
+            mobsdropdown:Refresh(Mobs_Table)
+        end,
+    })
+
+    sections.mainleft:Toggle({
+        Name = "Auto Farm Mobs",
+        Default = false,
+        Callback = function(state)
+            autofarmmobs = state
+            if autofarmmobs and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                local function farmMob(mobName)
+                    for _, v in pairs(workspace.Living:GetChildren()) do
+                        if v.Name == mobName then
+                            while v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Parent and v.Parent.Name == "Living" and autofarmmobs and not farmingchest do
+                                task.wait()
+                                humanoidRootPart:PivotTo(v.HumanoidRootPart.CFrame)
+                                ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.MoveInputService.RF.FireInput:InvokeServer("MouseButton1")
+                                while player.Cooldowns:FindFirstChild("Rush Attack") and autofarmmobs
+                                    or humanoid.WalkSpeed < 7 and autofarmmobs
+                                    or humanoid.JumpPower < 1 and autofarmmobs do
+                                    task.wait()
+                                    humanoidRootPart:PivotTo(v.HumanoidRootPart.CFrame * CFrame.new(0, 60, 0))
+                                end
+                            end
+                        end
+                    end
+                end
+    
+                while autofarmmobs do task.wait()
+                    local success, err = pcall(function()
+                        if SelectedMobs and #SelectedMobs > 0 and not farmingchest then
+                            for _, mobName in ipairs(SelectedMobs) do
+                                farmMob(mobName)
+                            end
+                        end
+                    end)
+                    if not success then
+                        warn(err)
+                    end
+                end
+            end
+        end
+    }, "AutoFarmMobs")    
+
+    local curse_names = {"Roppongi Curse", "Jujutsu Sorcerer", "Flyhead", "Mantis Curse"}
+
+    local curses = {}
+    for i, NPC in ipairs(curse_names) do
+        table.insert(curses, NPC)
+    end
+    
+    sections.mainleft:Toggle({
+        Name = "Auto Farm Curses Mob Group",
+        Default = false,
+        Callback = function(state)
+            autocursesmobs = state
+    
+            if autocursesmobs then
+    
+                while autocursesmobs do task.wait()
+                    local success, error = pcall(function()
+    
+                        local foundCurse = false
+                        for _,v in pairs(workspace.Living:GetChildren()) do
+                            if table.find(curses, v.Name) and v:FindFirstChild("HumanoidRootPart") and v.Parent and v.Parent.Name == "Living" and character and humanoidRootPart and v:FindFirstChildOfClass("Humanoid") then
+                                foundCurse = true
+                                while v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Parent ~= nil and not farmingchest and autocursesmobs do task.wait()
+                                    humanoidRootPart:PivotTo(v.HumanoidRootPart.CFrame)
+                                    ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.MoveInputService.RF.FireInput:InvokeServer("MouseButton1")
+                                    while player.Cooldowns:FindFirstChild("Rush Attack") and autocursesmobs
+                                    or humanoid.WalkSpeed < 7 and autocursesmobs
+                                    or humanoid.JumpPower < 1 and autocursesmobs do task.wait()
+                                        humanoidRootPart:PivotTo(v.HumanoidRootPart.CFrame * CFrame.new(0,60,0))
+                                    end
+                                end
+                            end
+                        end
+                        if not foundCurse and not farmingchest and autocursesmobs then
+                            humanoidRootPart:PivotTo(CFrame.new(1986, 943, -1492))
+                            moveTo(character, humanoidRootPart.Position + Vector3.new(0, 0, 70))
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "FarmCursesMobs")
+
+    sections.mainleft:Toggle({
+        Name = "Auto Finger Bearer Quest",
+        Default = false,
+        Callback = function(state)
+            autofingerquest = state
+            
+            if autofingerquest then
+
+                local lastCheck = os.clock()
+            
+                ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.QuestLineService.RF.DiscardQuestline:InvokeServer("Slayer_Quest")
+                
+                while autofingerquest do task.wait()
+                    pcall(function()
+                        ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.DialogueService.RF.CheckDialogue:InvokeServer("Slayer_Quest","Finger Bearer")
+                        
+                        for _,v in pairs(workspace.Living:GetChildren()) do
+                            if v.Name == "The Bearer" and v:FindFirstChild("HumanoidRootPart") and character and humanoidRootPart and v:FindFirstChildOfClass("Humanoid") or 
+                            table.find(curses, v.Name) and v:FindFirstChild("HumanoidRootPart") and character and humanoidRootPart and v:FindFirstChildOfClass("Humanoid") then
+                                foundsomething = true
+                                while v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and not farmingchest and autofingerquest do task.wait()
+                                    humanoidRootPart:PivotTo(v.HumanoidRootPart.CFrame)
+                                    ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.MoveInputService.RF.FireInput:InvokeServer("MouseButton1")
+                                    while player.Cooldowns:FindFirstChild("Rush Attack") or humanoid.WalkSpeed < 7 or humanoid.JumpPower < 1 and autofingerquest do task.wait()
+                                        humanoidRootPart:PivotTo(v.HumanoidRootPart.CFrame * CFrame.new(0,60,0))
+                                    end
+                                end
+                            end
+                        end
+                        if not foundsomething and character and humanoidRootPart and not farmingchest and autofingerquest or 
+                        (os.clock() - lastCheck >= 15) and character and humanoidRootPart and not farmingchest and autofingerquest then
+                            lastCheck = os.clock()
+                            humanoidRootPart:PivotTo(CFrame.new(1986, 943, -1492))
+                            --moveTo(character, character.HumanoidRootPart.Position + Vector3.new(0, 0, 70))
+                        end
+                    end)
+                end
+            end
+        end
+    }, "AutoFingerQuest")
+
+    sections.mainleft:Divider()
+
+    sections.mainleft:Header({
+        Text = "Bosses"
+    })
+
+    local Bosses_Table = {
+        { "The Vessel", CFrame.new(-162, 5, -10016) },
+        { "Eight-Handled Sword Divergent Sila Divine General Mahoraga", CFrame.new(-69, 5, -10250) },
+        { "The Sorcerer Killer", CFrame.new(65, 6, -10018) },
+        { "The Strongest Of Today", CFrame.new(-16733, 7, -5966) },
+        { "The Strongest In History", CFrame.new(-16733, 7, -5966) },
+        { "Luffy", CFrame.new(-3266, 919, 14879) },
+        { "The Clown", CFrame.new(-3151, 919, 15235) },
+        { "Shanks", CFrame.new(-3477, 919, 15258) },
+        { "Diavolo, The Boss", CFrame.new(1001, 934, 2874) },
+        { "Surgeon of Death", CFrame.new(-69063, 3360, 19958) },
+        { "Whitebeard", CFrame.new(-24395, 1577, 483) },
+        { "Crocodile", CFrame.new(2171, 913, -2525) },
+        { "Kars", CFrame.new(593, 1015, -416) }
+    }
+    
+    local Boss_Names = {}
+    for i, boss in ipairs(Bosses_Table) do
+        table.insert(Boss_Names, boss[1])
+    end
+    
+    local SelectedBosses = {}
+    
+    local bossdropdown = sections.mainleft:Dropdown({
+        Name = "Select Bosses to Farm",
+        Search = true,
+        Multi = true,
+        Required = false,
+        Options = Boss_Names,
+        Default = nil,
+        Callback = function(selectedValues)
+            SelectedBosses = {}
+            for bossName, isSelected in pairs(selectedValues) do
+                if isSelected then
+                    table.insert(SelectedBosses, bossName)
+                end
+            end
+        end,
+    }, "BossestoFarm")
+
+    sections.mainleft:Button({
+        Name = "Clear Bosses Selection",
+        Callback = function()
+            bossdropdown:UpdateSelection({nil})
+        end,
+    })
+
+    sections.mainleft:Slider({
+        Name = "Teleport Next Boss Delay",
+        Default = 1,
+        Minimum = 0,
+        Maximum = 10,
+        DisplayMethod = "Value",
+        Precision = 0,
+        Callback = function(t)
+            bossspawntpdelay = t
+        end
+    }, "TPNextBossDelay")
+    
+    sections.mainleft:Toggle({
+        Name = "Auto Farm Bosses",
+        Default = false,
+        Callback = function(state)
+            autofarmbosses = state
+            if autofarmbosses and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                local function getBossCFrame(bossName)
+                    for _, boss in ipairs(Bosses_Table) do
+                        if boss[1] == bossName then
+                            return boss[2]
+                        end
+                    end
+                    return nil
+                end
+    
+                local function farmBoss(bossName)
+                    for _, v in pairs(workspace.Living:GetChildren()) do
+                        if v.Name == bossName and v:FindFirstChild("HumanoidRootPart") and v.Parent ~= nil then
+                            while v:FindFirstChildOfClass("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Parent and v.Parent.Name == "Living" and not farmingchest and autofarmbosses do task.wait()
+                                humanoidRootPart:PivotTo(v.HumanoidRootPart.CFrame)
+                                ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.MoveInputService.RF.FireInput:InvokeServer("MouseButton1")
+                                while player.Cooldowns:FindFirstChild("Rush Attack") and autofarmbosses
+                                or humanoid.WalkSpeed < 7 and autofarmbosses
+                                or humanoid.JumpPower < 1 and autofarmbosses do task.wait()
+                                    humanoidRootPart:PivotTo(v.HumanoidRootPart.CFrame * CFrame.new(0, 60, 0))
+                                end
+                            end
+                            return true
+                        end
+                    end
+                    return false
+                end
+    
+                local currentIndex = 1
+    
+                while autofarmbosses do task.wait()
+    
+                    if #SelectedBosses > 0 then
+                        local currentBoss = SelectedBosses[currentIndex]
+                        if currentBoss then
+                            local bossCFrame = getBossCFrame(currentBoss)
+                            if bossCFrame then
+                                humanoidRootPart.CFrame = bossCFrame
+                            end
+
+                            task.wait(bossspawntpdelay)
+    
+                            local bossFound = farmBoss(currentBoss)
+                            if not bossFound then
+                                currentIndex = currentIndex + 1
+                                if currentIndex > #SelectedBosses then
+                                    currentIndex = 1
+                                end
+                            end
+                        else
+                            currentIndex = 1
+                        end
+                    end
+                end
+            end
+        end,
+    }, "AutoFarmBosses")
+    
+    sections.mainright:Button({
+        Name = "Go Back Up",
+        Callback = function()
+            pcall(function()
+                humanoidRootPart.CFrame = CFrame.new(humanoidRootPart.Position + Vector3.new(0,40,0))
+            end)
+        end
+    })
+
+    sections.itemsandchestsleft:Divider()
+
+    sections.itemsandchestsleft:Header({
+        Text = "Chest Auto Farms"
+    })
+
+    sections.itemsandchestsleft:Label({
+        Text = "Auto Collect Chests from mobs max distance"
+    })
+
+    sections.itemsandchestsleft:Slider({
+        Name = "",
+        Default = 100,
+        Minimum = 30,
+        Maximum = 300,
+        DisplayMethod = "Round",
+        Precision = 0,
+        Callback = function(t)
+            maxchestdistance = t
+        end
+    }, "ChestMaxDistance")
+
+    sections.itemsandchestsleft:Toggle({
+        Name = "Auto Farm Chests (From Mobs)",
+        Default = false,
+        Callback = function(state)
+            autofarmchestsMobs = state
+            if autofarmchestsMobs and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                local plrgui = player.PlayerGui
+                local gameplay = plrgui.UI.Gameplay
+                
+                while autofarmchestsMobs do task.wait()
+                    local success, err = pcall(function()
+                        for _,v in pairs(workspace:GetChildren()) do
+                            if v.Name == "Common" or v.Name == "Rare" or v.Name == "Epic" or v.Name == "Legendary" and (v.RootPart.Position - humanoidRootPart.Position).magnitude <= maxchestdistance then
+                                local item = v:FindFirstChild("RootPart")
+                                if item then
+                                    local prompt = item:FindFirstChildOfClass("Attachment") and item:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("ProximityPrompt")
+                                    if prompt then
+                                        farmingchest = true
+                                        humanoidRootPart:PivotTo(item.CFrame)
+                                        fireproximityprompt(prompt, 0)
+                                        fireproximityprompt(prompt, 1)
+                                    else
+                                        farmingchest = false
+                                    end
+                                else
+                                    farmingchest = false
+                                end
+                            else
+                                farmingchest = false
+                            end
+                        end
+                        if gameplay:FindFirstChild("ChestRoll") and gameplay.ChestRoll.Visible and gameplay.ChestRoll.SelectAll.Visible and gameplay.ChestRoll.TextLabel.Text == "REWARDS GAINED:" then
+                            firesignal(gameplay.ChestRoll.SelectAll.MouseButton1Click)
+                        end
+                        if gameplay:FindFirstChild("ChestRoll") and gameplay.ChestRoll.Close.Visible and gameplay.ChestRoll.TextLabel.Text == "REWARDS GAINED:" then
+                            firesignal(gameplay.ChestRoll.Close.MouseButton1Click)
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoFarmChests")
+
+    sections.itemsandchestsleft:Toggle({
+        Name = "Auto Farm Chests",
+        Default = false,
+        Callback = function(state)
+            autofarmchests = state
+            if autofarmchests and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                local plrgui = player.PlayerGui
+                local gameplay = plrgui.UI.Gameplay
+
+                local lastActionTime = 0
+                
+                while autofarmchests do task.wait()
+                    local success, err = pcall(function()
+                        for _,v in pairs(workspace.ItemSpawns.Chests:GetChildren()) do
+                            if v.Name == "SpawnLocation" and #v:GetChildren() > 0 then
+                                local item = v:FindFirstChildOfClass("Part") or v:FindFirstChildOfClass("MeshPart")
+                                if item then
+                                    local prompt = item:FindFirstChildOfClass("Attachment") and item:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("ProximityPrompt")
+                                    if prompt then
+                                        farmingchest = true
+                                        humanoidRootPart:PivotTo(item.CFrame)
+                                        fireproximityprompt(prompt, 0)
+                                        fireproximityprompt(prompt, 1)
+                                    else
+                                        farmingchest = false
+                                    end
+                                else
+                                    farmingchest = false
+                                end
+                            else
+                                local currentTime = os.clock()
+                                if currentTime - lastActionTime >= 5 then
+                                    lastActionTime = currentTime
+                                    task.spawn(function()
+                                        StarterGui:SetCore("SendNotification", {
+                                            Title = "North Hub Notifier";
+                                            Text = "No Chests Spawned in";
+                                            Duration = 2;
+                                        })
+                                    end)
+                                end
+                            end
+                        end
+                        if gameplay:FindFirstChild("ChestRoll") and gameplay.ChestRoll.Visible and gameplay.ChestRoll.SelectAll.Visible and gameplay.ChestRoll.TextLabel.Text == "REWARDS GAINED:" then
+                            firesignal(gameplay.ChestRoll.SelectAll.MouseButton1Click)
+                        end
+                        if gameplay:FindFirstChild("ChestRoll") and gameplay.ChestRoll.Close.Visible and gameplay.ChestRoll.TextLabel.Text == "REWARDS GAINED:" then
+                            firesignal(gameplay.ChestRoll.Close.MouseButton1Click)
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    })
+
+    sections.itemsandchestsleft:Toggle({
+        Name = "Auto Farm Astral Chests",
+        Default = false,
+        Callback = function(state)
+            autofarmastralchests = state
+            if autofarmastralchests then
+                local plrgui = player.PlayerGui
+                local gameplay = plrgui.UI.Gameplay
+
+                local lastActionTime = 0
+                
+                while autofarmastralchests do task.wait()
+                    local success, error = pcall(function()
+                        for _,v in pairs(workspace.ItemSpawns.AstralChests:GetChildren()) do
+                            if v.Name == "SpawnLocation" and #v:GetChildren() > 0 then
+                                local item = v:FindFirstChildOfClass("Part") or v:FindFirstChildOfClass("MeshPart")
+                                if item then
+                                    local prompt = item:FindFirstChildOfClass("Attachment") and item:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("ProximityPrompt")
+                                    if prompt then
+                                        farmingchest = true
+                                        humanoidRootPart:PivotTo(item.CFrame)
+                                        fireproximityprompt(prompt, 0)
+                                        fireproximityprompt(prompt, 1)
+                                    else
+                                        farmingchest = false
+                                    end
+                                else
+                                    farmingchest = false
+                                end
+                            else
+                                local currentTime = os.clock()
+                                if currentTime - lastActionTime >= 5 then
+                                    lastActionTime = currentTime
+                                    task.spawn(function()
+                                        StarterGui:SetCore("SendNotification", {
+                                            Title = "North Hub Notifier";
+                                            Text = "No Astral Chests Spawned In";
+                                            Duration = 2;
+                                        })
+                                    end)
+                                end
+                            end
+                        end
+                        if gameplay:FindFirstChild("ChestRoll") and gameplay.ChestRoll.Visible and gameplay.ChestRoll.SelectAll.Visible and gameplay.ChestRoll.TextLabel.Text == "REWARDS GAINED:" then
+                            firesignal(gameplay.ChestRoll.SelectAll.MouseButton1Click)
+                        end
+                        if gameplay:FindFirstChild("ChestRoll") and gameplay.ChestRoll.Close.Visible and gameplay.ChestRoll.TextLabel.Text == "REWARDS GAINED:" then
+                            firesignal(gameplay.ChestRoll.Close.MouseButton1Click)
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    })
+
+    sections.itemsandchestsright:Divider()
+
+    sections.itemsandchestsright:Header({
+        Text = "Item Auto Farms"
+    })
+
+    sections.itemsandchestsright:Toggle({
+        Name = "Auto Farm All Items",
+        Default = false,
+        Callback = function(state)
+            autofarmallitems = state
+            if autofarmallitems and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                local plrgui = player.PlayerGui
+                local gameplay = plrgui.UI.Gameplay
+
+                local lastActionTime = 0
+                
+                while autofarmallitems do task.wait()
+                    local success, err = pcall(function()
+                        for _,v in pairs(workspace.ItemSpawns:GetDescendants()) do
+                            if v.Name == "SpawnLocation" and #v:GetChildren() > 0 then
+                                local item = v:FindFirstChildOfClass("Part") or v:FindFirstChildOfClass("MeshPart")
+                                if item then
+                                    local prompt = item:FindFirstChildOfClass("Attachment") and item:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("ProximityPrompt")
+                                    if prompt then
+                                        farmingchest = true
+                                        humanoidRootPart:PivotTo(item.CFrame)
+                                        fireproximityprompt(prompt, 0)
+                                        fireproximityprompt(prompt, 1)
+                                    else
+                                        farmingchest = false
+                                    end
+                                else
+                                    farmingchest = false
+                                end
+                            else
+                                local currentTime = os.clock()
+                                if currentTime - lastActionTime >= 5 then
+                                    lastActionTime = currentTime
+                                    task.spawn(function()
+                                        StarterGui:SetCore("SendNotification", {
+                                            Title = "North Hub Notifier";
+                                            Text = "No Items Spawned in";
+                                            Duration = 2;
+                                        })
+                                    end)
+                                end
+                            end
+                        end
+                        if gameplay:FindFirstChild("ChestRoll") and gameplay.ChestRoll.Visible and gameplay.ChestRoll.SelectAll.Visible and gameplay.ChestRoll.TextLabel.Text == "REWARDS GAINED:" then
+                            firesignal(gameplay.ChestRoll.SelectAll.MouseButton1Click)
+                        end
+                        if gameplay:FindFirstChild("ChestRoll") and gameplay.ChestRoll.Close.Visible and gameplay.ChestRoll.TextLabel.Text == "REWARDS GAINED:" then
+                            firesignal(gameplay.ChestRoll.Close.MouseButton1Click)
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoFarmAllItems")
+
+    sections.itemsandchestsright:Toggle({
+        Name = "Auto Farm Devil Fruits",
+        Default = false,
+        Callback = function(state)
+            autofarmdevilfruits = state
+            if autofarmdevilfruits then
+
+                local lastActionTime = 0
+                
+                while autofarmdevilfruits do task.wait()
+                    local success, err = pcall(function()
+                        for _,v in pairs(workspace.ItemSpawns.DevilFruits:GetChildren()) do
+                            if v.Name == "SpawnLocation" and #v:GetChildren() > 0 then
+                                local item = v:FindFirstChildOfClass("Part") or v:FindFirstChildOfClass("MeshPart")
+                                if item then
+                                    local prompt = item:FindFirstChildOfClass("Attachment") and item:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("ProximityPrompt")
+                                    if prompt then
+                                        humanoidRootPart:PivotTo(item.CFrame)
+                                        fireproximityprompt(prompt, 0)
+                                        fireproximityprompt(prompt, 1)
+                                    end
+                                end
+                            else
+                                local currentTime = os.clock()
+                                if currentTime - lastActionTime >= 5 then
+                                    lastActionTime = currentTime
+                                    task.spawn(function()
+                                        StarterGui:SetCore("SendNotification", {
+                                            Title = "North Hub Notifier";
+                                            Text = "No Devil Fruits Spawned in";
+                                            Duration = 2;
+                                        })
+                                    end)
+                                end
+                            end
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "Auto_Farm_Devil_Fruits")
+
+    sections.itemsandchestsright:Toggle({
+        Name = "Auto Farm Event Items",
+        Default = false,
+        Callback = function(state)
+            autofarmeventitems = state
+            if autofarmeventitems then
+
+                local lastActionTime = 0
+                
+                while autofarmeventitems do task.wait()
+                    local success, err = pcall(function()
+                        for _,v in pairs(workspace.ItemSpawns.EventItems:GetChildren()) do
+                            if v.Name == "SpawnLocation" and #v:GetChildren() > 0 then
+                                local item = v:FindFirstChildOfClass("Part") or v:FindFirstChildOfClass("MeshPart")
+                                if item then
+                                    local prompt = item:FindFirstChildOfClass("Attachment") and item:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("ProximityPrompt")
+                                    if prompt then
+                                        humanoidRootPart:PivotTo(item.CFrame)
+                                        fireproximityprompt(prompt, 0)
+                                        fireproximityprompt(prompt, 1)
+                                    end
+                                end
+                            else
+                                local currentTime = os.clock()
+                                if currentTime - lastActionTime >= 5 then
+                                    lastActionTime = currentTime
+                                    task.spawn(function()
+                                        StarterGui:SetCore("SendNotification", {
+                                            Title = "North Hub Notifier";
+                                            Text = "No Event Items Spawned in";
+                                            Duration = 2;
+                                        })
+                                    end)
+                                end
+                            end
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoFarmEventItems")
+
+    sections.itemsandchestsright:Toggle({
+        Name = "Auto Farm Meteors",
+        Default = false,
+        Callback = function(state)
+            autofarmMeteors = state
+            if autofarmMeteors then
+
+                local lastActionTime = 0
+                
+                while autofarmMeteors do task.wait()
+                    local success, err = pcall(function()
+                        for _,v in pairs(workspace.ItemSpawns.Meteors:GetChildren()) do
+                            if v.Name == "SpawnLocation" and #v:GetChildren() > 0 then
+                                local item = v:FindFirstChildOfClass("Part") or v:FindFirstChildOfClass("MeshPart")
+                                if item then
+                                    local prompt = item:FindFirstChildOfClass("Attachment") and item:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("ProximityPrompt")
+                                    if prompt then
+                                        humanoidRootPart:PivotTo(item.CFrame)
+                                        fireproximityprompt(prompt, 0)
+                                        fireproximityprompt(prompt, 1)
+                                    end
+                                end
+                            else
+                                local currentTime = os.clock()
+                                if currentTime - lastActionTime >= 5 then
+                                    lastActionTime = currentTime
+                                    task.spawn(function()
+                                        StarterGui:SetCore("SendNotification", {
+                                            Title = "North Hub Notifier";
+                                            Text = "No Meteors Spawned in";
+                                            Duration = 2;
+                                        })
+                                    end)
+                                end
+                            end
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoFarmMeteors")
+
+    sections.itemsandchestsright:Toggle({
+        Name = "Auto Farm Shards",
+        Default = false,
+        Callback = function(state)
+            autofarmShards = state
+            if autofarmShards then
+
+                local lastActionTime = 0
+                
+                while autofarmShards do task.wait()
+                    local success, err = pcall(function()
+                        for _,v in pairs(workspace.ItemSpawns.Shards:GetChildren()) do
+                            if v.Name == "SpawnLocation" and #v:GetChildren() > 0 then
+                                local item = v:FindFirstChildOfClass("Part") or v:FindFirstChildOfClass("MeshPart")
+                                if item then
+                                    local prompt = item:FindFirstChildOfClass("Attachment") and item:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("ProximityPrompt")
+                                    if prompt then
+                                        humanoidRootPart:PivotTo(item.CFrame)
+                                        fireproximityprompt(prompt, 0)
+                                        fireproximityprompt(prompt, 1)
+                                    end
+                                end
+                            else
+                                local currentTime = os.clock()
+                                if currentTime - lastActionTime >= 5 then
+                                    lastActionTime = currentTime
+                                    task.spawn(function()
+                                        StarterGui:SetCore("SendNotification", {
+                                            Title = "North Hub Notifier";
+                                            Text = "No Shards Spawned in";
+                                            Duration = 2;
+                                        })
+                                    end)
+                                end
+                            end
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoFarmShards")
+
+    sections.itemsandchestsright:Toggle({
+        Name = "Auto Farm Only Standard Items",
+        Default = false,
+        Callback = function(state)
+            autofarmStandardItems = state
+            if autofarmStandardItems then
+
+                local lastActionTime = 0
+                
+                while autofarmStandardItems do task.wait()
+                    local success, err = pcall(function()
+                        for _,v in pairs(workspace.ItemSpawns.StandardItems:GetChildren()) do
+                            if v.Name == "SpawnLocation" and #v:GetChildren() > 0 then
+                                local item = v:FindFirstChildOfClass("Part") or v:FindFirstChildOfClass("MeshPart")
+                                if item then
+                                    local prompt = item:FindFirstChildOfClass("Attachment") and item:FindFirstChildOfClass("Attachment"):FindFirstChildOfClass("ProximityPrompt")
+                                    if prompt then
+                                        humanoidRootPart:PivotTo(item.CFrame)
+                                        fireproximityprompt(prompt, 0)
+                                        fireproximityprompt(prompt, 1)
+                                    end
+                                end
+                            else
+                                local currentTime = os.clock()
+                                if currentTime - lastActionTime >= 5 then
+                                    lastActionTime = currentTime
+                                    task.spawn(function()
+                                        StarterGui:SetCore("SendNotification", {
+                                            Title = "North Hub Notifier";
+                                            Text = "No Standard Items Spawned in";
+                                            Duration = 2;
+                                        })
+                                    end)
+                                end
+                            end
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoFarmOnlyStandardItems")
+
+    if game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+
+        baseplate = workspace:FindFirstChild("Baseplate") or Instance.new("Part", workspace)
+        baseplate.Size = Vector3.new(10000, 0.3, 10000)
+        baseplate.Anchored = true
+        baseplate.CanCollide = true
+        baseplate.Transparency = 1
+
+        function followPlayer()
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local playerPosition = humanoidRootPart.Position
+                baseplate.Position = Vector3.new(playerPosition.X, playerPosition.Y - 5, playerPosition.Z)
+            end
+        end
+
+        function noclip()
+            for i, v in pairs(character:GetDescendants()) do
+                if v:IsA("BasePart") and v.CanCollide == true then
+                    v.CanCollide = false
+                    humanoidRootPart.Velocity = Vector3.new(0,0,0)
+                end
+            end
+        end
+
+        function unnoclip()
+            for i, v in pairs(character:GetDescendants()) do
+                if v:IsA("BasePart") and v.CanCollide == false then
+                    v.CanCollide = true
+                    humanoidRootPart.Velocity = Vector3.new(0,0,0)
+                end
+            end
+        end
+    end
+
+    hidingname = false
+
+    if game.PlaceId == 8023712967 or game.PlaceId == 6846458508 then
+        label = player.PlayerGui.UI.Gameplay.Character.Info.Label
+
+        local playerList = coreGui:FindFirstChild("PlayerList")
+        local children = playerList and playerList:FindFirstChild("Children")
+        local offsetFrame = children and children:FindFirstChild("OffsetFrame")
+        local playerScrollList = offsetFrame and offsetFrame:FindFirstChild("PlayerScrollList")
+        local sizeOffsetFrame = playerScrollList and playerScrollList:FindFirstChild("SizeOffsetFrame")
+        local scrollingFrameContainer = sizeOffsetFrame and sizeOffsetFrame:FindFirstChild("ScrollingFrameContainer")
+        local scrollingFrameClippingFrame = scrollingFrameContainer and scrollingFrameContainer:FindFirstChild("ScrollingFrameClippingFrame")
+        local scrollingFrame = scrollingFrameClippingFrame and scrollingFrameClippingFrame:FindFirstChild("ScrollingFrame")
+        local offsetUndoFrame = scrollingFrame and scrollingFrame:FindFirstChild("OffsetUndoFrame")
+        local playerFrame = offsetUndoFrame and offsetUndoFrame:FindFirstChild("p_7208978385")
+        local childrenFrame = playerFrame and playerFrame:FindFirstChild("ChildrenFrame")
+        local nameFrame = childrenFrame and childrenFrame:FindFirstChild("NameFrame")
+        local bgFrame = nameFrame and nameFrame:FindFirstChild("BGFrame")
+        local overlayFrame = bgFrame and bgFrame:FindFirstChild("OverlayFrame")
+        local playerName = overlayFrame and overlayFrame:FindFirstChild("PlayerName")
+
+        local label2 = playerName and playerName:FindFirstChild("PlayerName")
+
+        function updateLabelText()
+            if hidingname then
+                local desiredText = "https://discord.gg/dracohub"
+                local desiredTextt = ".gg/dracohub"
+
+                if label and label.Text ~= desiredText then
+                    label.Text = desiredText
+                end
+
+                if label2 and label2.Text ~= desiredTextt then
+                    label2.Text = desiredTextt
+                end
+            end
+        end
+    end
+
+    sections.miscautosleft:Divider()
+
+    sections.miscautosleft:Header({
+        Text = "Press X to halt Auto Roll"
+    })
+
+    if game.PlaceId == 6846458508 then
+        UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+            if gameProcessedEvent then return end
+            if input.KeyCode == Enum.KeyCode.X then
+                autorollabilitybanner = false
+                print("Auto Roll Ability Banner Stopped")
+            end
+        end)
+    end
+
+    initialload = false
+
+    sections.miscautosleft:Toggle({
+        Name = "Auto Roll Ability Banner",
+        Default = false,
+        Callback = function(state)
+            autorollabilitybanner = state
+            if autorollabilitybanner and game.PlaceId == 6846458508 then
+                while autorollabilitybanner do task.wait()
+                    local success, err = pcall(function()
+                        if not player.PlayerGui.UI.Enabled then return end
+                        if not initialload then
+                            currentcframe = humanoidRootPart.CFrame
+                            task.wait(.1)
+                            while autorollabilitybanner and not player.PlayerGui.DialogueGUI.Enabled do task.wait()
+                                humanoidRootPart.CFrame = workspace.NPCS["Ability Banner"].HumanoidRootPart.CFrame
+                                task.wait(.1)
+                                fireproximityprompt(workspace.NPCS["Ability Banner"].HumanoidRootPart.Attachment.Interaction)
+                                if player.PlayerGui.DialogueGUI.Enabled then
+                                    task.wait(.5)
+                                    break
+                                end
+                            end
+                            if player.PlayerGui.DialogueGUI.Enabled or player.PlayerGui.UI.Gameplay.Banner.Visible then
+                                humanoidRootPart.CFrame = currentcframe
+                                initialload = true
+                            end
+                            while player.PlayerGui.DialogueGUI.Enabled do task.wait()
+                                while player.PlayerGui.DialogueGUI.Frame.ResponseFrame.Page.Visible and player.PlayerGui.DialogueGUI.Frame.ResponseFrame.Page.ResponseIMG.ResponseTXT.Text:lower() == "i would like to access the ability banner" do task.wait()
+                                    press(player.PlayerGui.DialogueGUI.Frame.ResponseFrame.Page.ResponseIMG.ResponseTXT)
+                                    task.wait(.1)
+                                end
+                            end
+                            if player.PlayerGui.DialogueGUI.Enabled or player.PlayerGui.UI.Gameplay.Banner.Visible then
+                                humanoidRootPart.CFrame = currentcframe
+                                initialload = true
+                            end
+                        end
+                        if player.PlayerGui.UI.Gameplay.Banner.Visible and not player.PlayerGui.UI.Prompt.Visible then
+                            local text = player.PlayerGui.UI.Gameplay.Banner.Buy.Ten.Currency.ContentText
+                            local number = stringToNumber(string.match(text, "%d+"))
+                            if player.Data.Currency.Value > number then
+                                press(player.PlayerGui.UI.Gameplay.Banner.Buy.Ten)
+                                task.wait(.1)
+                            end
+                        elseif not player.PlayerGui.UI.Gameplay.Banner.Visible then
+                            player.PlayerGui.UI.Gameplay.Banner.Visible = true
+                        end
+                        if player.PlayerGui.UI.Prompt.Visible then
+                            if player.PlayerGui.UI.Prompt.Frame.DescriptionFrame.Description.Text:lower() == "choose a currency to buy pulls with" or player.PlayerGui.UI.Prompt.Frame.Label.Text:lower() == "you pulled the following items" then
+                                for _,v in pairs(player.PlayerGui.UI.Prompt.Frame.Buttons:GetDescendants()) do
+                                    if v:IsA("TextLabel") and (v.ContentText:lower() == "10000 us" or v.ContentText:lower() == "ok") then
+                                        press(v.Parent)
+                                        task.wait(.1)
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                        while not player.PlayerGui.UI.Enabled do 
+                            task.wait()
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoRollAbilityBanner")
+
+    sections.miscautosright:Divider()
+
+    sections.miscautosright:Header({
+        Text = "Misc Auto Settings"
+    })
+
+    sections.miscautosright:Label({
+        Text = "Ascension Limit before switch stand"
+    })
+
+    sections.miscautosright:Slider({
+        Name = "",
+        Default = 200,
+        Minimum = 1,
+        Maximum = 10000,
+        DisplayMethod = "Ascensions",
+        Precision = 0,
+        Callback = function(t)
+            ascensionlimit = t
+        end
+    }, "AscensionLimitBeforeSwitch")
+
+    sections.miscautosleft:Toggle({
+        Name = "Auto Swap Stand on Ascension Limit",
+        Default = false,
+        Callback = function(state)
+            autoswapascension = state
+            if autoswapascension and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+
+                local ascensionCheckCount = 0
+                local startTime = os.time()
+
+                while autoswapascension do task.wait()
+
+                    local success, err = pcall(function()
+                        local data = player.Data
+                        local ability = data.Ability
+                        local standability = ability:GetAttribute("AbilityName")
+
+                        if not player.PlayerGui.UI.Gameplay.Character.Info:FindFirstChild("CombatTag").Visible then
+                            local Inventory = ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.InventoryService.RF.GetItems:InvokeServer("AbilityInventory")
+
+                            for _, x in pairs(Inventory) do
+                                task.wait(1)
+                                if ability:GetAttribute("AscensionRank") >= ascensionlimit then
+                                    ascensionCheckCount += 1
+
+                                    if ascensionCheckCount > 60 and os.time() - startTime <= 90 then
+                                        autoswapascension = false
+                                        warn("Changed Stands over 60 times within 90 seconds. Auto-swap stopped.")
+                                        break
+                                    end
+
+                                    if os.time() - startTime > 90 then
+                                        ascensionCheckCount = 0
+                                        startTime = os.time()
+                                    end
+
+                                    ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.InventoryService.RE.AbilityInventory:FireServer({
+                                        ["Equip"] = true,
+                                        ["UUID"] = x._UUID,
+                                        ["ItemId"] = x._ItemId
+                                    })
+                                end
+                            end
+                        end
+                    end)
+
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoSwapStandOnAscensionLimit")
+
+    sections.miscautosleft:Slider({
+        Name = "Auto Ascend Delay",
+        Default = 1,
+        Minimum = 0,
+        Maximum = 20,
+        DisplayMethod = "Round",
+        Precision = 0,
+        Callback = function(t)
+            autoascenddelay = t
+        end
+    }, "AutoAscendDelay")
+
+    sections.miscautosleft:Toggle({
+        Name = "Auto Ascend",
+        Default = false,
+        Callback = function(state)
+            autoascend = state
+            if autoascend and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                local abilityUI = player.PlayerGui.UI.Menus.Ability.Tabs.Ascensions.AscendSection.Requirements
+                local levelLabel = abilityUI.Level.AmountLabel
+                local ucoinsLabel = abilityUI.UCoins.AmountLabel
+                local ability = player.Data.Ability
+                
+                while autoascend do task.wait()
+                    local success, err = pcall(function()
+                        local levelCleanText = stripTags(levelLabel.Text)
+                        levelCleanText = trim(levelCleanText)
+                    
+                        local currentLevel, maxLevel = levelCleanText:match("(%d+)%s*%/%s*(%d+)")
+                        currentLevel, maxLevel = tonumber(currentLevel), tonumber(maxLevel)
+                        
+                        local ucoinsCleanText = stripTags(ucoinsLabel.Text)
+                        ucoinsCleanText = trim(ucoinsCleanText)
+                    
+                        local currentUCoins, maxUCoins = ucoinsCleanText:match("(%d+)%s*%/%s*(%d+)")
+                        currentUCoins, maxUCoins = tonumber(currentUCoins), tonumber(maxUCoins)
+                        
+                        if currentLevel and maxLevel and currentUCoins and maxUCoins then
+                            if currentLevel == maxLevel and currentUCoins >= maxUCoins then
+                                ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.LevelService.RF.AscendAbility:InvokeServer(ability.Value)
+                            end
+                        else
+                            warn("Failed to extract values - Level: " .. (currentLevel or "nil") .. "/" .. (maxLevel or "nil"))
+                            warn("Failed to extract UCoins - Current: " .. (currentUCoins or "nil") .. "/" .. (maxUCoins or "nil"))
+                        end
+                        
+                        task.wait(autoascenddelay)
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoAscend")
+
+    local stats_table = {
+        "Attack", "Defense",
+
+        "Health", "Special"
+    }
+
+    local statdropdown = sections.miscautosright:Dropdown({
+        Name = "Stat to Auto Invest",
+        Multi = false,
+        Required = true,
+        Options = stats_table,
+        Default = nil,
+        Callback = function(Value)
+            selectedstat = Value
+        end,
+    }, "StattoAutoInvest")
+
+    sections.miscautosright:Slider({
+        Name = "Auto Stat Delay",
+        Default = 0.5,
+        Minimum = 0,
+        Maximum = 5,
+        DisplayMethod = "Value",
+        Precision = 1,
+        Callback = function(t)
+            autostatdelay = t
+        end
+    }, "AutoStatDelay")
+
+    sections.miscautosleft:Divider()
+
+    sections.miscautosleft:Header({
+        Text = "Auto Skills"
+    })
+    
+    sections.miscautosleft:Slider({
+        Name = "Skill Spam Delay",
+        Default = 1.5,
+        Minimum = 0,
+        Maximum = 5,
+        DisplayMethod = "Value",
+        Precision = 1,
+        Callback = function(t)
+            skillspamdelay = t
+        end
+    }, "skillspamdelay")
+
+    sections.miscautosleft:Toggle({
+        Name = "Auto Spam All Skills",
+        Default = false,
+        Callback = function(state)
+            spamallskills = state
+
+            if spamallskills then
+                while spamallskills do task.wait()
+                    local success, err = pcall(function()
+                        local keys = {Enum.KeyCode.E, Enum.KeyCode.R, Enum.KeyCode.Y, Enum.KeyCode.Y, Enum.KeyCode.X}
+        
+                        for _, key in ipairs(keys) do
+                            vim:SendKeyEvent(true, key, false, game)
+                            task.wait(.1)
+                            vim:SendKeyEvent(false, key, false, game)
+                        end
+                        
+                        task.wait(skillspamdelay)
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoSpamAllSkills")
+
+    local Skills_Table = {"E", "R", "T", "Y", "G", "H", "Z", "X", "C", "P"}
+    local SelectedSkills = {}
+    
+    local skillsdropdown = sections.miscautosleft:Dropdown({
+        Name = "Select Skills to Spam",
+        Search = true,
+        Multi = true,
+        Required = false,
+        Options = Skills_Table,
+        Default = nil,
+        Callback = function(selectedValues)
+            SelectedSkills = {}
+            for skill, isSelected in pairs(selectedValues) do
+                if isSelected then
+                    table.insert(SelectedSkills, skill)
+                end
+            end
+        end,
+    }, "SelectedSkillstoSpam")
+    
+    sections.miscautosleft:Toggle({
+        Name = "Auto Spam Chosen Skills",
+        Default = false,
+        Callback = function(state)
+            spamallskills = state
+            
+            if spamallskills then
+                task.spawn(function()
+                    while spamallskills do task.wait()
+                        local success, err = pcall(function()
+                            for _, skillKey in ipairs(SelectedSkills) do
+                                vim:SendKeyEvent(true, Enum.KeyCode[skillKey], false, game)
+                                task.wait(.1)
+                                vim:SendKeyEvent(false, Enum.KeyCode[skillKey], false, game)
+                                task.wait(skillspamdelay)
+                            end
+                        end)
+                        if not success then
+                            warn(err)
+                        end
+                    end
+                end)
+            end
+        end,
+    })    
+
+    sections.miscautosleft:Label({
+        Text = "To see the visual change go out of stats and back in"
+    })
+
+    sections.miscautosleft:Toggle({
+        Name = "Auto Stat Selected",
+        Default = false,
+        Callback = function(state)
+            autostat = state
+            if autostat and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                while autostat do task.wait()
+                    local success, error = pcall(function()
+                        local ability = player.Data.Ability
+                        if selectedstat == "Attack" then
+                            ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.StatService.RF.ApplyStats:InvokeServer(ability.Value, {["Special"] = 0, ["Defense"] = 0, ["Health"] = 0, ["Attack"] = 1})
+                        elseif selectedstat == "Defense" then
+                            ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.StatService.RF.ApplyStats:InvokeServer(ability, {["Special"] = 0, ["Defense"] = 1, ["Health"] = 0, ["Attack"] = 0})
+                        elseif selectedstat == "Health" then
+                            ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.StatService.RF.ApplyStats:InvokeServer(ability, {["Special"] = 0, ["Defense"] = 0, ["Health"] = 1, ["Attack"] = 0})
+                        elseif selectedstat == "Special" then
+                            ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.StatService.RF.ApplyStats:InvokeServer(ability, {["Special"] = 1, ["Defense"] = 0, ["Health"] = 0, ["Attack"] = 0})
+                        end
+                        task.wait(autostatdelay)
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "AutoStat")
+
+    local stands_table = {
+        -- Original Stands
+        "Star Platinum",
+        "Magician's Red",
+        "Silver Chariot",
+        "Anubis",
+        "Shadow Dio",
+        "Killer Queen",
+        "Crazy Diamond",
+        "The Hand",
+        "Gold Experience",
+        "King Crimson",
+        "Sticky Fingers",
+        "Whitesnake",
+        "Weather Report",
+        "D4C",
+        "Dirty Deeds Done Dirt Cheap",
+        "Dirty Deeds Done Dirt Cheap (D4C)",
+        "The World High Voltage",
+        "Tusk Act 1",
+        "Steel Spin",
+
+        -- Additional Stands
+        "Star Platinum: The World",
+        "Gold Experience Requiem",
+        "The World",
+        "C-Moon",
+        "Made in Heaven",
+        "The World: Over Heaven",
+        "D4C: Love Train",
+        "Tusk Act 2",
+        "Tusk Act 3",
+        "Tusk Act 4",
+        "Planet // Shaper",
+        "Sol",
+        "Nocturnus",
+        "Shadow The World Requiem",
+        "Star Platinum Requiem",
+        "Locke",
+        "XENO",
+
+        -- Specs
+        "Standless",
+        "Dawn",
+        "Reaper",
+        "Sans",
+        "Asgore",
+        "Broly",
+        "Killua",
+        "Yasuo",
+        "Yone",
+        "Mero Mero No Mi",
+        "Gomu Gomu No Mi",
+        "Hito Model: Nika",
+        "Ope Ope No Mi",
+        "Suna Suna No Mi",
+        "Gryphon",
+        "Kuro Claws",
+        "Anshen",
+        "Brickbattle",
+        "Umbra",
+        "Vampire",
+        "Kars",
+        "Jonathan Hamon",
+        "Joseph Hamon",
+        "Base Hamon",
+        "Soul Survivor",
+        "Dragon Knight",
+        "Shadow",
+        "Chrono Warden",
+        "Casey",
+        "The Vessel",
+        "King Of Curses",
+        "Sorcerer Killer",
+        "The Strongest",
+        "Cursed Child",
+
+        -- Event
+        "Candy Cutlass",
+        "Shinigami"
+    }
+
+    -- miscautos:Dropdown({
+    --     Name = "Stand to Auto Choose for Boundless",
+    --     Default = nil,
+    --     Options = stands_table,
+    --     Save = true,
+    --     Callback = function(t)
+    --         chosenstand = t
+    --     end
+    -- })
+
+    -- miscautos:Toggle({
+    --     Name = "Auto Farm Boundless Tower",
+    --     Default = false,
+    --     Save = true,
+    --     Callback = function(state)
+    --         autoboundlesstower = state
+    --         if autoboundlesstower and game.PlaceId == 8023712967 then
+    --             while autoboundlesstower do task.wait()
+    --                 local success, err = pcall(function()
+    --                     if player.PlayerGui.UI.Menus.Visible then
+    --                         if not player.PlayerGui.UI.Prompt.Visible then
+    --                             if player.PlayerGui.UI.Menus.Draft.Holder.AbilityArea.Items:FindFirstChild(chosenstand) then
+    --                                 press(player.PlayerGui.UI.Menus.Draft.Holder.AbilityArea.Items[chosenstand].Button)
+    --                             else
+    --                                 for _,names in ipairs(stands_table) do
+    --                                     for _,v in ipairs(player.PlayerGui.UI.Menus.Draft.Holder.AbilityArea.Items:GetChildren()) do
+    --                                         if v.Name:lower() == names:lower() then
+    --                                             press(v.Button)
+    --                                             task.wait(.1)
+    --                                         end
+    --                                     end
+    --                                 end
+    --                             end
+    --                         end
+    --                         if player.PlayerGui.UI.Prompt.Visible then
+    --                             for _,v in pairs(player.PlayerGui.UI.Prompt.Frame.Buttons:GetDescendants()) do
+    --                                 if v:IsA("TextLabel") and v.ContentText:lower() == "yes" then
+    --                                     press(v.Parent)
+    --                                     task.wait(.1)
+    --                                     break
+    --                                 end
+    --                             end
+    --                         end
+    --                         if player.PlayerGui.UI.Menus.Gamemode.Visible then
+    --                             for _,v in pairs(player.PlayerGui.UI.Menus.Gamemode.BoundlessTowerSelect.MapHolder:GetDescendants()) do
+    --                                 if v:IsA("TextLabel") and v.Name == "MapName" and v.ContentText:lower() == "metro" then
+    --                                     press(v.Parent.Parent.Select)
+    --                                     task.wait(.1)
+    --                                 end
+    --                             end
+    --                         end
+    --                     end
+    --                     if not player.PlayerGui.UI.Menus.Visible then
+    --                         for _,x in pairs(workspace.Living:GetChildren()) do
+    --                             if x:FindFirstChild("HumanoidRootPart") and x.Parent ~= nil and x.Name ~= player.Name and not farmingchest and x:FindFirstChildOfClass("Humanoid") and x:FindFirstChildOfClass("Humanoid").Health > 0 then
+    --                                 ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.MoveInputService.RF.FireInput:InvokeServer("MouseButton1")
+    --                                 while player.Cooldowns:FindFirstChild("Rush Attack") and autoboundlesstower and x:FindFirstChildOfClass("Humanoid").Health > 0 
+    --                                 or humanoid.WalkSpeed < 7 and autoboundlesstower
+    --                                 or humanoid.JumpPower < 1 and autoboundlesstower do task.wait()
+    --                                     humanoidRootPart.CFrame = x.HumanoidRootPart.CFrame * CFrame.new(0,60,0)
+    --                                 end
+    --                             end
+    --                         end
+    --                     end
+    --                 end)
+    --                 if not success then warn(err) end
+    --             end
+    --         end
+    --     end
+    -- })
+
+    if game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+        function getTraits()
+            allTraits = {}
+            for traitName, _ in pairs(TraitHandler.Traits) do
+                table.insert(allTraits, traitName)
+            end
+            return allTraits
+        end
+
+        TraitHandler = require(ReplicatedStorage.ReplicatedModules.PVEPackage.TraitHandler)
+        Knit = require(ReplicatedStorage.ReplicatedModules.KnitPackage.Knit)
+
+        currentTrait = ""
+
+        oldGetTraitData = TraitHandler.GetTraitData
+        TraitHandler.GetTraitData = function(...)
+            local args = {...}
+            currentTrait = args[1]
+            return oldGetTraitData(...)
+        end
+
+        getTraits()
+    end
+
+    sections.miscautosright:Divider()
+
+    sections.miscautosright:Header({
+        Text = "Auto Trait"
+    })
+
+    local SelectedTraits = {}
+
+    local traitsdropdown = sections.miscautosright:Dropdown({
+        Name = "Select Traits Roll For",
+        Search = true,
+        Multi = true,
+        Required = false,
+        Options = allTraits,
+        Default = nil,
+        Callback = function(selectedValues)
+            SelectedTraits = {}
+            for traitName, isSelected in pairs(selectedValues) do
+                if isSelected then
+                    table.insert(SelectedTraits, traitName)
+                end
+            end
+        end,
+    }, "Select Traits Roll For")
+
+    sections.miscautosright:Button({
+        Name = "Clear Traits Selection",
+        Callback = function()
+            traitsdropdown:UpdateSelection({nil})
+        end,
+    })
+
+    local pings_table = {
+        "Below 60 Ping", -- .07
+        "Below 90 Ping", -- .1
+        "Below 140 Ping", -- .15
+        "Below 190 Ping", -- .2
+        "Below 240 Ping", -- .25
+        "Below 290 Ping"  -- .3
+    }
+    
+    local ping_to_wait_time = {
+        ["Below 60 Ping"] = 0.07,
+        ["Below 90 Ping"] = 0.1,
+        ["Below 140 Ping"] = 0.15,
+        ["Below 190 Ping"] = 0.2,
+        ["Below 240 Ping"] = 0.25,
+        ["Below 290 Ping"] = 0.3
+    }
+    
+    local traitsdropdownping = sections.miscautosright:Dropdown({
+        Name = "Auto Trait Ping",
+        Search = true,
+        Multi = false,
+        Required = false,
+        Options = pings_table,
+        Default = "Below 190 Ping",
+        Callback = function(SelectedValue)
+            selectedping = SelectedValue
+        end,
+    }, "Auto Trait Ping")
+    
+    sections.miscautosright:Toggle({
+        Name = "Auto Trait",
+        Default = false,
+        Callback = function(state)
+            autotrait = state
+            if autotrait and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                local TraitService = Knit.GetService("TraitService")
+                if TraitService then
+                    while autotrait do
+                        local shouldStop = false
+    
+                        for _, selectedTrait in ipairs(SelectedTraits) do
+                            if currentTrait == selectedTrait then
+                                warn("Trait Found: " .. selectedTrait)
+                                shouldStop = true
+                                break
+                            end
+                        end
+    
+                        if shouldStop then
+                            break
+                        end
+    
+                        TraitService:PickTrait(1)
+    
+                        local wait_time = ping_to_wait_time[selectedping] or 0.2
+                        task.wait(wait_time)
+    
+                        for _, selectedTrait in ipairs(SelectedTraits) do
+                            if currentTrait == selectedTrait then
+                                warn("Trait Found: " .. selectedTrait)
+                                shouldStop = true
+                                break
+                            end
+                        end
+    
+                        if shouldStop then
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    }, "Auto Trait")
+
+    sections.miscautosright:Toggle({
+        Name = "Auto Discard all Trait Hands",
+        Default = false,
+        Callback = function(state)
+            autodiscard = state
+            if autodiscard and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                while autodiscard do task.wait()
+                    pcall(function()
+                        for _ = 1,10 do
+                            ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.TraitService.RF.DiscardTraits:InvokeServer()
+                        end
+                    end)
+                end
+            end
+        end
+    }, "AutoDiscardAllTraitHands")
+
+    local NPCs_Table = {}
+    if game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+        for i,v in pairs(workspace.NPCS:GetChildren()) do
+            if v:IsA("Model")  and not table.find(NPCs_Table,v.Name) then
+                table.insert(NPCs_Table,v.Name)
+            end
+        end
+    end
+
+    sections.teleportsleft:Divider()
+
+    sections.teleportsleft:Header({
+        Text = "Npc Teleports"
+    })
+
+    local NPCSDropDown = sections.teleportsleft:Dropdown({
+        Name = "Npc to Teleport to",
+        Search = true,
+        Multi = false,
+        Required = false,
+        Default = nil,
+        Options = NPCs_Table,
+        Callback = function(t)
+            npctp = t
+        end
+    }, "NPCtoTPto")
+
+    sections.teleportsleft:Button({
+        Name = "Teleport to Selected NPC",
+        Callback = function()
+            humanoidRootPart.CFrame = workspace.NPCS[npctp]:GetPivot()
+        end
+    })
+
+    sections.teleportsleft:Button({
+        Name = "Refresh Npcs List",
+        Callback = function()
+            local NPCs_Table = {}
+            for _, v in pairs(workspace.Living:GetChildren()) do
+                if v:IsA("Model")  and not table.find(NPCs_Table,v.Name) then
+                    table.insert(NPCs_Table, v.Name)
+                end
+            end
+            NPCSDropDown:Refresh(NPCs_Table)
+        end,
+    })
+
+    local function createBaseplate(position)
+        local baseplate = Instance.new("Part")
+        baseplate.Size = Vector3.new(10, 1, 10)
+        baseplate.Position = position + Vector3.new(0, -20, 0)
+        baseplate.Anchored = true
+        baseplate.CanCollide = true
+        baseplate.BrickColor = BrickColor.new("Bright blue")
+        baseplate.Parent = workspace
+    end
+
+    sections.teleportsleft:Button({
+        Name = "Teleport to Black Market",
+        Callback = function()
+            if game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                if workspace.NPCS:FindFirstChild("Black Market") then
+                    humanoidRootPart.CFrame = workspace.NPCS["Black Market"]:GetPivot() * CFrame.new(0,5,0)
+                    createBaseplate(humanoidRootPart.Position)
+                else
+                    StarterGui:SetCore("SendNotification", {
+                        Title = "North Hub Notifier";
+                        Text = "Black Market Not Spawned!";
+                        Duration = 3;
+                    })
+                end
+            end
+        end
+    })
+
+    sections.teleportsleft:Divider()
+
+    sections.teleportsleft:Header({
+        Text = "Area Teleports"
+    })
+
+    local areas_table = {
+        {Name = "Central City Spawn", CFrame = CFrame.new(2013, 974, 305)},
+        {Name = "Desert (JJK Area)", CFrame = CFrame.new(1928, 944, -1367)},
+        {Name = "Realm of the Forgotten", CFrame = CFrame.new(19291, 912, 198)},
+        {Name = "Floating Village", CFrame = CFrame.new(1188, 1009, -321)},
+        {Name = "Soccer Field", CFrame = CFrame.new(1980, 976, -399)},
+        {Name = "Infernal Cairn", CFrame = CFrame.new(2777, 1021, -749)},
+        {Name = "Subway", CFrame = CFrame.new(-16332, 7, -5967)},
+        {Name = "Shibuya", CFrame = CFrame.new(280, 5, -9928)},
+        {Name = "Colloseum", CFrame = CFrame.new(1027, 934, 3090)},
+        {Name = "Port", CFrame = CFrame.new(2120, 922, 995)},
+        {Name = "JoeStar Mansion", CFrame = CFrame.new(2717, 919, 5332)},
+        {Name = "Marine Ford", CFrame = CFrame.new(-24618, 1660, 784)},
+        {Name = "Orange Town", CFrame = CFrame.new(-2920, 919, 15168)},
+        {Name = "Punk Hazard", CFrame = CFrame.new(-69014, 3350, 19820)},
+        {Name = "Knights Cavern", CFrame = CFrame.new(3526, 938, -424)},
+        {Name = "Valentine Island", CFrame = CFrame.new(-5118, 190, -246)},
+        {Name = "Devil's Palm", CFrame = CFrame.new(1230, 909, -2012)},
+        {Name = "Devil's Palm (Safe Area)", CFrame = CFrame.new(1529, 960, -1997)},
+        {Name = "Alabasta", CFrame = CFrame.new(2006, 917, -2334)},
+        {Name = "Central Wilds", CFrame = CFrame.new(2441, 991, -529)},
+        {Name = "Skate Park", CFrame = CFrame.new(2426, 998, -212)},
+        {Name = "Backrooms", CFrame = CFrame.new(926, 80, -5942)},
+        {Name = "???", CFrame = CFrame.new(582, 917, -2010)},
+        {Name = "Kame House", CFrame = CFrame.new(2540, 917, 1831)},
+        {Name = "Space", CFrame = CFrame.new(1868, 4308, -182)},
+    }
+    
+    local areaNames = {}
+    for _, area in ipairs(areas_table) do
+        table.insert(areaNames, area.Name)
+    end
+    
+    local areasdropdown = sections.teleportsleft:Dropdown({
+        Name = "Area to teleport to",
+        Search = true,
+        Multi = false,
+        Required = false,
+        Options = areaNames,
+        Default = nil,
+        Callback = function(SelectedValue)
+            selectedarea = SelectedValue
+        end,
+    }, "Area to teleport to")
+
+    sections.teleportsleft:Button({
+        Name = "Teleport to Selected Area",
+        Callback = function()
+            if selectedarea then
+                for _, area in ipairs(areas_table) do
+                    if area.Name == selectedarea then
+                        humanoidRootPart.CFrame = area.CFrame
+                        break
+                    end
+                end
+            end
+        end
+    })
+
+    sections.teleportsright:Divider()
+
+    sections.teleportsright:Header({
+        Text = "Boss Spawn Teleports"
+    })
+
+    local boss_spawns_table = {
+        {Name = "Sukuna Spawn", CFrame = CFrame.new(-84, 5, -9780)},
+        {Name = "Mahoroga Spawn", CFrame = CFrame.new(-69, 5, -10250)},
+        {Name = "Toji Spawn", CFrame = CFrame.new(65, 6, -10018)},
+        {Name = "Yuji Spawn", CFrame = CFrame.new(-147, 5, -9989)},
+        {Name = "Gojo Spawn", CFrame = CFrame.new(-16733, 7, -5966)},
+        {Name = "Luffy Spawn", CFrame = CFrame.new(-3266, 919, 14879)},
+        {Name = "Shanks Spawn", CFrame = CFrame.new(-3477, 919, 15258)},
+        {Name = "Bara Spawn", CFrame = CFrame.new(-3151, 919, 15235)},
+        {Name = "Diavolo Spawn", CFrame = CFrame.new(1001, 934, 2874)},
+        {Name = "Law Spawn", CFrame = CFrame.new(-69063, 3360, 19958)},
+        {Name = "Whitebeard Spawn", CFrame = CFrame.new(-24401, 1577, 496)},
+        {Name = "Kars Spawn", CFrame = CFrame.new(593, 1015, -416)},
+        {Name = "Crocodile Spawn", CFrame = CFrame.new(2171, 913, -2525)},
+    }
+
+    local bossspawnnames = {}
+    for _, bossspawns in ipairs(boss_spawns_table) do
+        table.insert(bossspawnnames, bossspawns.Name)
+    end
+
+    local bossspawndropdown = sections.teleportsright:Dropdown({
+        Name = "Boss Spawn to teleport to",
+        Search = true,
+        Multi = false,
+        Required = false,
+        Options = bossspawnnames,
+        Default = nil,
+        Callback = function(SelectedValue)
+            selectedbossspawn = SelectedValue
+        end,
+    }, "BossSpawntoteleportto")
+
+    sections.teleportsright:Button({
+        Name = "Teleport to Selected Boss Spawn",
+        Callback = function()
+            if selectedbossspawn then
+                for _, bosser in ipairs(boss_spawns_table) do
+                    if bosser.Name == selectedbossspawn then
+                        humanoidRootPart.CFrame = bosser.CFrame
+                        break
+                    end
+                end
+            end
+        end
+    })
+
+    sections.teleportsright:Divider()
+
+    sections.teleportsright:Header({
+        Text = "Black Market Spawn Teleports"
+    })
+
+    local bm_spawns_table = {
+        {Name = "First BM Spawn", CFrame = CFrame.new(2452, 982, 131)},
+        {Name = "Second BM Spawn", CFrame = CFrame.new(2035, 922, 1063)},
+        {Name = "Third BM Spawn", CFrame = CFrame.new(957, 1009, -452)},
+        {Name = "Fourth BM Spawn", CFrame = CFrame.new(2039, 1063, -779)},
+    }
+
+    local bmNames = {}
+    for _, bm in ipairs(bm_spawns_table) do
+        table.insert(bmNames, bm.Name)
+    end
+
+    local bmdropdown = sections.teleportsright:Dropdown({
+        Name = "BM Spawn to teleport to",
+        Search = true,
+        Multi = false,
+        Required = false,
+        Options = bmNames,
+        Default = nil,
+        Callback = function(SelectedValue)
+            selectedbm = SelectedValue
+        end,
+    }, "BM Spawn to teleport to")
+
+    sections.teleportsright:Button({
+        Name = "Teleport to Selected BM Spawn",
+        Callback = function()
+            if selectedbm then
+                for _, bm in ipairs(bm_spawns_table) do
+                    if bm.Name == selectedbm then
+                        humanoidRootPart.CFrame = bm.CFrame
+                        break
+                    end
+                end
+            end
+        end
+    })
+
+    -- misc:Button({
+    --     Name = "Join random Private Server",
+    --     Callback = function()
+    --         if game.PlaceId == 5130598377 then
+    --             local psremote = ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.PrivateCodeService.RF.JoinLobby
+
+
+    --             local letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    --             local byte = string.byte
+    --             local char = string.char
+                
+    --             local function generateRandomCode()
+    --                 local code = {
+    --                     char(byte(letters, math.random(1, 26))),
+    --                     char(byte(letters, math.random(1, 26))),
+    --                     char(byte(letters, math.random(1, 26))),
+    --                     char(byte(letters, math.random(1, 26))),
+    --                     char(byte(letters, math.random(1, 26))),
+    --                     char(byte(letters, math.random(1, 26))),
+    --                     char(byte(letters, math.random(1, 26))),
+    --                     char(byte(letters, math.random(1, 26))),
+    --                     char(byte(letters, math.random(1, 26))),
+    --                     char(byte(letters, math.random(1, 26)))
+    --                 }
+                    
+    --                 local pos1, pos2 = math.random(1, 10), math.random(1, 10)
+    --                 while pos2 == pos1 do
+    --                     pos2 = math.random(1, 10)
+    --                 end
+    --                 code[pos1] = tostring(math.random(1, 9))
+    --                 code[pos2] = tostring(math.random(1, 9))
+                    
+    --                 return table.concat(code)
+    --             end
+
+    --             local function sendRequests()
+    --                 while true do
+    --                     local args = {
+    --                         [1] = generateRandomCode()
+    --                     }
+    --                     psremote:InvokeServer(unpack(args))
+    --                 end
+    --             end
+
+    --             for i = 1, 25 do
+    --                 task.spawn(sendRequests)
+    --             end
+    --         else
+    --             StarterGui:SetCore("SendNotification", {
+    --                 Title = "North Hub Notifier";
+    --                 Text = "You Need to be in the Menu";
+    --                 Duration = 3;
+    --             })
+    --         end
+    --     end
+    -- })
+
+    sections.miscleft:Toggle({
+        Name = "Black Market ESP (Name Tag)",
+        Default = false,
+        Callback = function(state)
+            bmesp = state
+            if bmesp and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                while bmesp do task.wait()
+                    local success, err = pcall(function()
+                        local npc = workspace.NPCS:FindFirstChild("Black Market")
+
+                        if npc and npc:FindFirstChild("Head") and not npc.Head:FindFirstChildOfClass("BillboardGui") then
+                            local billboardGui = Instance.new("BillboardGui")
+                            billboardGui.Adornee = npc.Head
+                            billboardGui.Size = UDim2.new(0, 150, 0, 50)
+                            billboardGui.StudsOffset = Vector3.new(0, 2, 0)
+                            billboardGui.AlwaysOnTop = true
+                            billboardGui.MaxDistance = 100000000
+
+                            local textLabel = Instance.new("TextLabel")
+                            textLabel.Size = UDim2.new(1, 0, 1, 0)
+                            textLabel.BackgroundTransparency = 1
+                            textLabel.Text = "Black Market"
+                            textLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+                            textLabel.TextStrokeTransparency = 0.5
+                            textLabel.TextScaled = true
+
+                            textLabel.Parent = billboardGui
+
+                            billboardGui.Parent = npc.Head
+                        end
+                    end)
+                    if not success then warn(err) end
+                end
+            end
+        end
+    }, "BlackMarketEsp")
+
+    sections.miscleft:Button({
+        Name = "Reset Character",
+        Callback = function()
+            if game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                humanoid.Health = 0
+            end
+        end
+    })
+
+    sections.miscleft:Divider()
+
+    sections.miscleft:Header({
+        Text = "Fps Boost"
+    })
+
+    local fpsboosterexecuted = false
+
+    sections.miscleft:Toggle({
+        Name = "FPS Booster",
+        Default = false,
+        Callback = function(state)
+            boostfps = state
+            while boostfps and not fpsboosterexecuted do task.wait(2)
+                local Lighting = game.Lighting
+                local userSettings = UserSettings():GetService("UserGameSettings")
+                userSettings.GraphicsQualityLevel = Enum.SavedQualitySetting.QualityLevel1
+
+                for _, part in pairs(workspace:GetDescendants()) do
+                    if part:IsA("Part") or part:IsA("MeshPart") then
+                        part.Material = Enum.Material.SmoothPlastic
+                        part.Reflectance = 0
+                        part.CastShadow = false
+                    end
+                end
+
+                Lighting.GlobalShadows = false
+                Lighting.Outlines = false
+
+                Lighting.Brightness = 1
+                Lighting.TimeOfDay = "14:00:00"
+                Lighting.FogEnd = 100000
+                Lighting.FogStart = 100000
+                Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+
+                fpsboosterexecuted = true
+            end
+        end
+    }, "BoostFps")
+
+    sections.miscleft:Label({
+        Text = "Disabling 3D Rendering makes ur screen go white and doesn't effect autofarming"
+    })
+
+    local renderdisabled = false
+
+    sections.miscleft:Toggle({
+        Name = "Disable 3D Rendering",
+        Default = false,
+        Callback = function(state)
+            disablerendering = state
+            while disablerendering do task.wait(.5)
+                if not renderdisabled then
+                    RunService:Set3dRenderingEnabled(false)
+                    renderdisabled = true
+                end
+                if not disablerendering then
+                    renderdisabled = false
+                    RunService:Set3dRenderingEnabled(true)
+                end
+            end
+        end
+    }, "Disable3dRendering")
+
+    sections.miscleft:Toggle({
+        Name = "Hide Name (Visual Only)",
+        Default = false,
+        Callback = function(state)
+            hidename = state
+            if hidename and game.PlaceId ~= 5130598377 and game.PlaceId ~= 8008202756 then
+                while hidename do task.wait()
+                    hidingname = true
+                    updateLabelText()
+
+                    label:GetPropertyChangedSignal("Text"):Connect(updateLabelText)
+                    if label2 then
+                        label2:GetPropertyChangedSignal("Text"):Connect(updateLabelText)
+                    end
+                end
+            else
+                hidingname = false
+            end
+        end
+    }, "HideName")
+
+    sections.menuleft:Button({
+        Name = "Open Ability Banner",
+        Callback = function()
+            local gameplay = player.PlayerGui.UI.Gameplay
+            gameplay.Banner.Visible = true
+        end
+    })
+
+    sections.menuleft:Button({
+        Name = "Open Crafting Menu",
+        Callback = function()
+            local gameplay = player.PlayerGui.UI.Gameplay
+            gameplay.Crafting.Visible = true
+        end
+    })
+
+    sections.menuleft:Button({
+        Name = "Open Trait Reroll Menu",
+        Callback = function()
+            local gameplay = player.PlayerGui.UI.Gameplay
+            gameplay.TraitReroll.Visible = true
+        end
+    })
+
+    sections.menuleft:Button({
+        Name = "Open Menu",
+        Callback = function()
+            local playerGui = player.PlayerGui
+            local UI = playerGui.UI
+            local menus = UI.Menus
+            local buttons = UI.Buttons
+            local gameplay = UI.Gameplay
+            
+            menus.Menu.Visible = true
+            menus.ServerInfo.Visible = false
+            menus.ServerInfo.Visible = true
+            menus.Multipliers.Visible = false
+            menus.Multipliers.Visible = true
+            buttons.Gameplay.Visible = false
+            gameplay.Visible = false
+            menus.Visible = true
+            menus.Currencies.Visible = true
+            menus.BonusProducts.Visible = true
+        end
+    })
+
+    sections.menuright:Divider()
+
+    sections.menuright:Header({
+        Text = "To open any of the below you must click Open Menu First"
+    })
+
+    sections.menuright:Button({
+        Name = "Open Ability Menu",
+        Callback = function()
+            local ui = player.PlayerGui.UI
+            local menus = ui.Menus
+            local content = menus.Ability.Tabs.Trait.TraitSection.CurrentTrait.Content
+            local selfnoti = ui.Gameplay.SelfNotification
+            
+            menus.Menu.Visible = false
+            menus.BonusProducts.Visible = false
+            menus.ServerInfo.Visible = false
+            menus.ServerInfo.Visible = true
+            menus.Multipliers.Visible = false
+            menus.Multipliers.Visible = true
+            menus.Ability.Visible = true
+            menus.Currencies.Visible = false
+            
+            content.ModifiersTitle.Visible = false
+            content.Modifiers.Visible = false
+            content.ModifiersTitle.Visible = true
+            content.Modifiers.Visible = true
+            
+            selfnoti.Visible = true
+            selfnoti.Visible = false
+        end
+    })
+
+    sections.menuright:Button({
+        Name = "Open Inventory",
+        Callback = function()
+            local ui = player.PlayerGui.UI
+            local menus = ui.Menus
+            menus.Menu.Visible = false
+            menus.Inventory.Visible = true
+        end
+    })
+
+    sections.menuright:Button({
+        Name = "Open Shop",
+        Callback = function()
+            local ui = player.PlayerGui.UI
+            local menus = ui.Menus
+            menus.Menu.Visible = false
+            menus.Products.Visible = true
+        end
+    })
+
+    sections.menuright:Button({
+        Name = "Open Trade",
+        Callback = function()
+            local ui = player.PlayerGui.UI
+            local menus = ui.Menus
+            menus.Menu.Visible = false
+            menus.TradeList.Visible = true
+        end
+    })
+
+    sections.menuright:Button({
+        Name = "Open Quests",
+        Callback = function()
+            local ui = player.PlayerGui.UI
+            local menus = ui.Menus
+            menus.Menu.Visible = false
+            menus.Quests.Visible = true
+        end
+    })
+
+    sections.menuright:Button({
+        Name = "Open Achievements",
+        Callback = function()
+            local ui = player.PlayerGui.UI
+            local menus = ui.Menus
+            menus.Menu.Visible = false
+            menus.Achievements.Visible = true
+        end
+    })
+
+    sections.menuright:Button({
+        Name = "Open Rewards",
+        Callback = function()
+            local ui = player.PlayerGui.UI
+            local menus = ui.Menus
+            menus.Menu.Visible = false
+            menus.Rewards.Visible = true
+        end
+    })
+
+    sections.menuleft:Button({
+        Name = "TP to Menu",
+        Callback = function()
+            teleportService:Teleport(5130598377, player)
+        end
+    })
+
+    sections.riskyright:Divider()
+
+    sections.riskyright:Header({
+        Text = "Risky Settings & Stats"
+    })
+
+    pcall(function()
+        sections.riskyright:Label({
+            Text = "Current UCoins:"
+        })
+
+        local UcoinsLabel = sections.riskyright:Label({
+            Text = player.Data.UCoins.Value
+        })
+        
+        sections.riskyright:Label({
+            Text = "Current UShards:"
+        })
+
+        local UShardLabel = sections.riskyright:Label({
+            Text = player.Data.Currency.Value
+        })
+
+        task.spawn(function()
+            while true do task.wait(.1)
+                if player:FindFirstChild("Data") then
+                    UcoinsLabel:Refresh(player.Data.UCoins.Value)
+                    UShardLabel:Refresh(player.Data.Currency.Value)
+                else
+                    task.wait()
+                end
+            end
+        end)
+    end)
+
+    local Rarity_Table = {"Mythical", "Legendary", "Epic", "Rare", "Uncommon", "Common"}
+
+    local raritylevelfarm = sections.riskyright:Dropdown({
+        Name = "Select Rarity to Level Farm",
+        Search = true,
+        Multi = true,
+        Required = false,
+        Options = Rarity_Table,
+        Default = nil,
+        Callback = function(selectedValues)
+            SelectedRarityDrop = {}
+            for rarityName, isSelected in pairs(selectedValues) do
+                if isSelected then
+                    table.insert(SelectedRarityDrop, rarityName)
+                end
+            end
+        end,
+    }, "Select Rarity to Level")
+
+    sections.riskyright:Button({
+        Name = "Clear Rarity Selection",
+        Callback = function()
+            raritylevelfarm:UpdateSelection({})
+        end
+    })
+
+    sections.riskyleft:Divider()
+
+    sections.riskyleft:Header({
+        Text = "Risky Options"
+    })
+
+    sections.riskyleft:Toggle({
+        Name = "Coin Burner",
+        Default = false,
+        Callback = function(state)
+            burncoins = state
+            while burncoins do task.wait()
+                local args = {
+                    [1] = 1
+                }
+                
+                
+                ReplicatedStorage:WaitForChild("ReplicatedModules"):WaitForChild("KnitPackage"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("StatService"):WaitForChild("RF"):WaitForChild("ResetStats"):InvokeServer(unpack(args))                
+            end
+        end
+    },"CoinBurner")
+
+    sections.riskyleft:Toggle({
+        Name = "Level Farm",
+        Default = false,
+        Callback = function(state)
+            levelfarm = state
+            while levelfarm do
+                task.wait()
+
+                local RarityTable = {
+                    Mythical = Color3.fromRGB(255, 85, 0),
+                    Legendary = Color3.fromRGB(255, 150, 75),
+                    Epic = Color3.fromRGB(175, 90, 255),
+                    Rare = Color3.fromRGB(75, 150, 255),
+                    Uncommon = Color3.fromRGB(125, 235, 150),
+                    Common = Color3.fromRGB(225, 225, 225)
+                }
+
+                if #SelectedRarityDrop == 0 then
+                    print("No rarities selected.")
+                else
+                    print("Processing selected rarities:")
+                    for _, rarity in ipairs(SelectedRarityDrop) do
+                        print(rarity)
+                    end
+                end
+
+                for _, v in pairs(player.PlayerGui.UI.Menus["Black Market"].Frame.ShardConvert.Shards:GetDescendants()) do
+                    if v:IsA("UIStroke") and v.Parent.Name == "Button" then
+                        for _, selectedRarity in ipairs(SelectedRarityDrop) do
+                            local rarityColor = RarityTable[selectedRarity]
+                            if rarityColor and v.Color == rarityColor then
+                                local amountText = tonumber(v.Parent.Amount.Text)
+                                if amountText and amountText > 0 then
+                                    local consumeArgs = {
+                                        [1] = {
+                                            [v.Parent.Parent.Name] = 10
+                                        }
+                                    }
+
+                                    ReplicatedStorage:WaitForChild("ReplicatedModules"):WaitForChild("KnitPackage"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("LevelService"):WaitForChild("RF"):WaitForChild("ConsumeShardsForXP"):InvokeServer(unpack(consumeArgs))
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    },"OpLevelFarm")
+
+    sections.riskyleft:Toggle({
+        Name = "OP Ushard Farm",
+        Default = false,
+        Callback = function(state)
+            OPFarm = state
+            if OPFarm then
+                
+                task.spawn(function()
+                    if game.PlaceId == 8008202756 then
+                        while task.wait(1) do
+                            local gui = player.PlayerGui.MainMenu.Menus
+                            if gui.LobbyMenu.Visible then
+                                press(gui.LobbyMenu.Holder.Gamemodes)
+                            elseif gui.Gamemodes.Visible and not gui.Gamemodes.Queue.Visible then
+                                press(gui.Gamemodes.ModesHolder.Modes.ModesPage1:GetChildren()[5].BoundlessTower.Select)
+                            elseif gui.Gamemodes.Queue.Visible then
+                                press(gui.Gamemodes.Queue.Content.QueueButton)
+                            end
+                        end
+                    end
+                end)
+                
+                task.spawn(function()
+                    if game.PlaceId == 8023712967 then
+                        pcall(function()
+                    
+                            local character = player.Character
+                    
+                            while not character do task.wait()
+                                character = player.Character
+                            end
+                    
+                            for _ = 1, 275 do task.wait()
+                                local ohString1 = "GCBEBCBHAE/1729100333/OLUBF"
+                                ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.DraftService.RE.Select:FireServer(ohString1)
+                            end
+                    
+                            task.wait()
+                    
+                            local ohTable1 = {
+                                ["Selection"] = "Metro",
+                                ["Action"] = "Vote",
+                                ["Handler"] = "BoundlessTower"
+                            }
+                    
+                            ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.GameModeService.RE.Signal:FireServer(ohTable1)
+                    
+                            task.spawn(function()
+                                local targetPosition = Vector3.new(-357, 308, -160)
+                                while task.wait() do
+                                    local character = player.Character
+                                    if character and character:FindFirstChild("HumanoidRootPart") then
+                                        character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+                                    end
+                                end
+                            end)
+                    
+                            task.spawn(function()
+                                while task.wait() do
+                                    for _, v in pairs(workspace:GetChildren()) do
+                                        if v.Name == "Common" or v.Name == "Epic" or v.Name == "Rare" or v.Name == "Uncommon" or v.Name == "Legendary" then
+                                            for _, x in pairs(v:GetDescendants()) do
+                                                if x:IsA("ProximityPrompt") then
+                                                    fireproximityprompt(x)
+                                                    task.wait(.05)
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end)
+                    
+                            task.spawn(function()
+                                while task.wait() do
+                                    for _, x in ipairs(workspace:GetChildren()) do
+                                        if x.Name == "Common" or x.Name == "Epic" or x.Name == "Rare" or x.Name == "Uncommon" or x.Name == "Legendary" then
+                                            for _, descendant in ipairs(x:GetDescendants()) do
+                                                if descendant:IsA("ProximityPrompt") then
+                                                    local bruh1 = descendant.Parent
+                                                    local bruh = bruh1 and bruh1.Parent
+                                                    for _, obj in ipairs(x:GetDescendants()) do
+                                                        if obj ~= descendant and obj ~= bruh1 and obj ~= bruh then
+                                                            obj:Destroy()
+                                                        end
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end)
+                            
+                            task.spawn(function()
+                                while task.wait() do
+                                    local coreGuiTypeNames = {
+                                        ["inventory"] = Enum.CoreGuiType.Backpack,
+                                    }
+                    
+                                    local function enableCoreGui(guiName)
+                                        local coreGuiType = coreGuiTypeNames[guiName:lower()]
+                                        if coreGuiType then
+                                            StarterGui:SetCoreGuiEnabled(coreGuiType, true)
+                                        end
+                                    end
+
+                                    task.spawn(function()
+                                        enableCoreGui("inventory")
+                                    end)
+                                end
+                            end)
+                    
+                            task.spawn(function()
+                                while task.wait() do
+                                    local itemsToSell = {}
+                    
+                                    for _, tool in ipairs(player.Backpack:GetChildren()) do
+                                        if tool:IsA("Tool") then
+                                            local itemId = tool:GetAttribute("ItemId")
+                                            local uuid = tool:GetAttribute("UUID")
+                                            if itemId and uuid then
+                                                table.insert(itemsToSell, {itemId, uuid, 1})
+                                            end
+                                        end
+                                    end
+
+                                    if #itemsToSell > 0 then
+                                        ReplicatedStorage.ReplicatedModules.KnitPackage.Knit.Services.ShopService.RE.Signal:FireServer("BlackMarketBulkSellItems", itemsToSell)
+                                    end
+                                end
+                            end)
+
+                            task.spawn(function()
+                                while task.wait(.1) do
+                                    for _, v in pairs(workspace.Map:GetChildren()) do
+                                        v:Destroy()
+                                    end
+                                end
+                            end)   
+
+                            task.spawn(function()
+                                while task.wait(.1) do
+                                    if player:FindFirstChild("PlayerGui") then
+                                        player.PlayerGui:Destroy()
+                                    end
+                                end
+                            end)
+
+                            task.spawn(function()
+                                while task.wait(.1) do
+                                    local foundcrate = false
+                                    for _, x in ipairs(workspace:GetChildren()) do
+                                        if x.Name == "Common" or x.Name == "Epic" or x.Name == "Rare" or x.Name == "Uncommon" or x.Name == "Legendary" then
+                                            for _, descendant in ipairs(x:GetDescendants()) do
+                                                if descendant:IsA("ProximityPrompt") then
+                                                    foundcrate = true
+                                                end
+                                            end
+                                        end
+                                    end
+                                    for _, v in pairs(workspace.Living:GetChildren()) do
+                                        if v.Name ~= player.Name then
+                                            task.wait(2)
+                                            if not foundcrate then
+                                            TeleportService:Teleport(8008202756, player)
+                                            end
+                                        end
+                                    end
+                                end
+                            end)  
+                    
+                        end)
+                    end
+                end)
+
+                task.spawn(function()
+                    if game.PlaceId ~= 8023712967 and game.PlaceId ~= 8008202756 then
+                        TeleportService:Teleport(8008202756, player)
+                    end
+                end)                
+            end
+        end
+    },"OpUShardFarm")
+
+    MacLib:SetFolder("NorthHub")
+    tabs.Settings:InsertConfigSection("Left")
+
+    Window.onUnloaded(function()
+        print("Unloaded!")
+    end)
+
+    tabs.Main:Select()
+    MacLib:LoadAutoLoadConfig()
+    task.spawn(function()
+        local autohidetimer = os.clock() + 120
+        local success = false
+        
+        while os.clock() < autohidetimer do task.wait()
+            while macUI and macUI.Enabled do
+                if togglemacUI() then
+                    success = true
+                    break
+                end
+                task.wait(.1)
+            end
+            if success then
+                print("auto hide successful")
+                break
+            end
+        end
+    end)
+end
